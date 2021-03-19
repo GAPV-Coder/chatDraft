@@ -1,6 +1,11 @@
 import React, { useEffect, useState} from 'react';
 import { useForm } from 'react-hook-form';
-import {Link, useHistory} from 'react-router-dom'
+import {Link, useHistory} from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+
+//actions 
+import { userForm } from '../redux/actions/userFormActions'
+import { signUpThunk} from '../redux/actions/signUpActions';
 
 //material ui 
 import { makeStyles } from '@material-ui/core/styles';
@@ -57,37 +62,35 @@ const useStyles = makeStyles({
 });
 
 const SignUpLogIn = () => {
-    const {register, handleSubmit, errors} = useForm();
+    const {register, handleSubmit} = useForm();
     const [signUp, setSignUp] = useState('');
 
     const history = useHistory();
+    const dispatch = useDispatch();
+
+    const user = useSelector(state => state.userFormReducer.formInfo);
+    const access = useSelector(state => state.logInReducer.response);
+
+    useEffect(() => {
+        if(user.email) {
+            dispatch(signUpThunk(user.email, user.username, user.password));
+        } 
+    }, [dispatch, user]);
+
+    useEffect(() => {
+        if(access.access) {
+            history.push('/chat')
+        } else {
+            return null;
+        }
+    }, [access, history])
 
     const onSubmit = (data, event) => {
+        dispatch((userForm(data)));
         console.log(data);
         setSignUp(data);
         event.target.reset();
     }
-
-    useEffect(() => {
-        if(signUp) {
-            const axios = require('axios').default;
-                axios.post('https://academlo-chat.herokuapp.com/api/users/signup', {
-                    email: `${signUp.email}`,
-                    username: `${signUp.username}`,
-                    password: `${signUp.password}`
-                })
-                .then(function (response) {
-                    console.log(response);
-                    history.push({ 
-                        pathname: '/chat',
-                        state: { room: signUp.room, username: response.data.user.username, token: response.data.user.token }
-                    })
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-        }
-    }, [signUp]);
 
     const classes = useStyles();
 
@@ -119,7 +122,7 @@ const SignUpLogIn = () => {
                         />
                         <TextField
                             required
-                            type="text"
+                            type="password"
                             id="filled-required"
                             label="Password"
                             variant="filled"
@@ -131,7 +134,7 @@ const SignUpLogIn = () => {
                             required
                             type="text"
                             id="filled-required"
-                            label="Room to join"
+                            label="Room"
                             variant="filled"
                             name="room"
                             inputRef={register}

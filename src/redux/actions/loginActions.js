@@ -3,6 +3,7 @@ import axios from "axios";
 const LOG_IN = 'LOG_IN';
 const LOG_IN_SUCCESS = 'LOG_IN_SUCCESS';
 const LOG_IN_FAILURE = 'LOG_IN_FAILURE';
+const LOG_OUT = 'LOG_OUT';
 
 export const logIn = () => {
     return {
@@ -22,6 +23,13 @@ export const logInError = (error) => {
     return {
         type: LOG_IN_FAILURE,
         payload: error
+    }
+}
+
+export const logOutLoggedIn = () => {
+    return {
+        type: LOG_OUT,
+        payload: {}
     }
 }
 

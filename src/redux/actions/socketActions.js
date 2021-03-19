@@ -1,19 +1,12 @@
-
-
 const MESSAGE = 'MESSAGE';
 const ROOM_DATA = 'ROOM_DATA';
 const ERROR = 'ERROR';
-const CONNECT = 'CONNECT';
 const CONNECT_SUCCESSFUL = 'CONNECT_SUCCESSFUL';
 const CONNECT_FAILURE = 'CONNECT_FAILURE';
 const CONNECT_ERROR = 'CONNECT_ERROR';
+const MSG_SOCKET_ON = 'MSG_SOCKET_ON';
+const LOG_OUT = 'LOG_OUT';
 
-export const connectSocket = () => {
-    return {
-        type: CONNECT, 
-        payload: 'connecting...'
-    }
-}
 
 export const connectSocketSuccessful = (data) => {
     return {
@@ -57,27 +50,15 @@ export const error = (err) => {
     }
 }
 
-// export const socketThunk = (token, username, room) => {
-//     return function (dispatch) {
-//         dispatch(connectSocket());
-//         try {
-            
-//             console.log(socket.connected);
-//             if(socket.connected) { 
-//                 dispatch(connectSocketSuccessful(socket.connected));
-//             } else if (socket.connected === false) {
-//                 dispatch(connectSocketFailure(socket.connected));
-//             }
-//         } catch (err) {
-//             dispatch(connectSocketError(err))
-//         }
-        
+export const messageSocketOn = (msg) => {
+    return {
+        type: MSG_SOCKET_ON, 
+        payload: msg
+    }
+}
 
-        // socket.emit('join', {name: username, room: room}, () => {});
-
-        // socket.on('roomData', (data) => {
-        //     dispatch(roomData(data));
-        //   console.log(data);
-        // });
+export const logOutSocket = () => {
+    return {
+        type: LOG_OUT
     }
 }

@@ -1,8 +1,13 @@
-import React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import {useSelector, useDispatch} from 'react-redux';
 import io from "socket.io-client";
-import {roomData, message, error, socketThunk} from '../redux/actions/socketActions';
+
+// actions
+import {roomData, messageSocketOn} from '../redux/actions/socketActions';
+import {logOutForm} from '../redux/actions/userFormActions';
+import {logOutLoggedIn} from '../redux/actions/loginActions';
 
 // material ui 
 import { makeStyles } from '@material-ui/core/styles';
@@ -13,7 +18,6 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import TextField from '@material-ui/core/TextField';
 import SendIcon from '@material-ui/icons/Send';
 import Button from '@material-ui/core/Button';
-import socketReducer from '../redux/reducers/socketReducer';
 
 const useStyles = makeStyles({
     root: {
@@ -70,10 +74,16 @@ const useStyles = makeStyles({
     exitHr: {
         marginBottom: 15
     },
+    boxSendContainer: {
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center'
+    },
     sendContainer: {
         display: 'flex', 
         justifyContent: 'space-evenly', 
-        alignItems: 'center'
+        alignItems: 'center', 
+        width: '100%'
     },
     sendIcon: {
         width: 40,
@@ -97,6 +107,7 @@ const useStyles = makeStyles({
     }, 
     chatContainer: {
         padding: 10, 
+        overflow: 'auto'
     },
     boxDiv: {
         width:'fit-content',
@@ -104,52 +115,102 @@ const useStyles = makeStyles({
         borderTopRightRadius: 20, 
         borderBottomRightRadius: 20, 
         borderBottomLeftRadius: 20,
-        padding: '15px 20px'
+        padding: '15px 20px', 
     }, 
+    boxDiv2: {
+        width:'fit-content',
+        background: '#dddddd',
+        borderTopLeftRadius: 20, 
+        borderBottomRightRadius: 20, 
+        borderBottomLeftRadius: 20,
+        padding: '15px 20px', 
+    },
+    conditionalBox: {
+        // end
+        display: 'flex', 
+        justifyContent: 'end', 
+        marginBottom: '20px',
+    },
+    conditionalBox2: {
+        //start
+        display: 'flex',
+        marginBottom: '20px',
+    },
     msgUsername: {
         fontWeight: 'bold',
-        margin: 0
+        margin: 0, 
+        textTransform: 'capitalize', 
+        textAlign: 'left'
     }, 
     msgMsg: {
-        margin: 0
+        margin: 0, 
+        textTransform: 'capitalize'
+    }, 
+    username: {
+        textTransform: 'capitalize', 
     }
 });
 
 const Chat = () => {
+    const [sendingMsg, setSendingMsg] = useState('');
+    const [socket, setSocket] = useState('');
+    const {register, handleSubmit} = useForm();
+
     const token = useSelector(state => state.logInReducer.response.user.token);
     const username = useSelector(state => state.logInReducer.response.user.username);
     const room = useSelector(state => state.userFormReducer.formInfo.room);
+    const roomName = useSelector(state => state.socketReducer.room_data.room);
+    const usersArray = useSelector(state => state.socketReducer.room_data);
+    const msgsFromSocket = useSelector(state => state.socketReducer.msgSocketOn);
     const dispatch = useDispatch();
+    const history = useHistory();
+
+
+        // socket.on('error', (err) => {
+        //     dispatch(error(err));
+        //     console.log(err)
+        // })
+
 
     useEffect(() => {
-        const socket = io('https://academlo-chat.herokuapp.com/', { query: {token: token} });
-        console.log(socket);
+        if(token) {
+            const socketConnection = io('https://academlo-chat.herokuapp.com/', { query: {token: token} });
+            setSocket(socketConnection);
+        }
+    }, [token])
+
+    useEffect(() => { 
         
-        socket.emit('join', {name: username, room: room}, () => {});
+        if(socket) {
+            socket.emit('join', {name: username, room: room}, () => {});
 
-        socket.on('roomData', (data) => {
-            dispatch(roomData(data));
-          console.log(data);
-        });      
+            socket.on('roomData', (data) => {
+                dispatch(roomData(data));
+            });  
+
+            socket.on('message', (data) => {
+                dispatch(messageSocketOn(data));
+            });
+        }
         
-        socket.emit('sendMessage', 'hola cam y gus', () => {});
+    }, [dispatch, socket, room, username])
 
+    useEffect(() => {
+        if(sendingMsg) {
+            socket.emit('sendMessage', sendingMsg.text, () => {});
+        }       
+    }, [sendingMsg, socket])
 
-        socket.on('message', (data) => {
-            dispatch(message(data));
-            console.log(data);
-            // moment("20120620", "YYYYMMDD").fromNow();
-        })
+    const onSubmit = (data, event) => {
+        setSendingMsg({...data, user: username});
+        event.target.reset();
+    }
 
-        socket.on('error', (err) => {
-            dispatch(error(err));
-            console.log(err)
-        })
-    }, [dispatch, token, username, room])
-
-    // const roomName = useSelector(state => state.socketReducer.room_data.room);
-    // const messageInfo = useSelector(state => state.socketReducer.message);
-    // const usersArray = useSelector(state => state.socketReducer.room_data.users);
+    const handleLogOut = () => {
+        history.push('/');
+        dispatch(logOutForm());
+        dispatch(logOutLoggedIn())
+    }
 
     const classes = useStyles();
 
@@ -159,39 +220,47 @@ const Chat = () => {
                 <div>
                     <div className={classes.container}>
                         <MeetingRoomIcon className={classes.icon}/>
-                        {/* <p>{roomName}</p> */}
+                        <p>{roomName}</p>
                     </div>
                     <hr className={classes.hr}/>
-                    {/* {usersArray.length > 0 && usersArray.map((user) => 
-                    <div className={classes.userContainer}>
+                    {usersArray.users && usersArray.users.map((user) => 
+                    <div key={user.id} className={classes.userContainer}>
                         <FiberManualRecordIcon className={classes.usernameIcon}/>
-                        <p>{user.name}</p>
-                    </div>)} */}
+                        <p className={classes.username}>{user.name}</p>
+                    </div>)}
                 </div>
                 <div className={classes.logoutContainer}>
                     <hr className={classes.exitHr}/>
                     <div className={classes.container}>   
-                        <Button className={classes.logOutButton}><ExitToAppIcon className={classes.exitIcon}/></Button>
+                        <Button className={classes.logOutButton} onClick={handleLogOut}><ExitToAppIcon className={classes.exitIcon}/></Button>
                         <p>Log Out</p>
                     </div>
                 </div>
             </Box>
             <Box width="78%" height="85.5vh" className={classes.chatContainer}>
-                <div className={classes.boxDiv}>
-                    {/* <p className={classes.msgUsername}>{messageInfo.user}</p>
-                    <p className={classes.msgMsg}>{messageInfo.text}</p> */}
-                </div>
+                {msgsFromSocket && msgsFromSocket.map((msg) => 
+                <div className={ msg.user === username? classes.conditionalBox : classes.conditionalBox2}>
+                    {console.log(username, msg.user)}
+                    <div className={ msg.user === username ? classes.boxDiv2 : classes.boxDiv}>
+                        <p className={classes.msgUsername}>{msg.user}</p>
+                        <p className={classes.msgMsg}>{msg.text}</p>
+                    </div>
+                </div>)}
             </Box>
-            <Box width="80%" height="12vh" className={classes.sendContainer}>
-                <TextField
-                        id="outlined-multiline-flexible"
-                        label="Type your message"
-                        multiline
-                        rowsMax={3}
-                        variant="outlined"
-                        className={classes.input}
-                />
-                <Button className={classes.button}><SendIcon className={classes.sendIcon}/></Button>
+            <Box width="80%" height="12vh" className={classes.boxSendContainer}>
+                <form onSubmit={handleSubmit(onSubmit)} className={classes.sendContainer}>
+                    <TextField
+                            id="outlined-multiline-flexible"
+                            label="Type your message"
+                            multiline
+                            rowsMax={3}
+                            variant="outlined"
+                            className={classes.input}
+                            name="text"
+                            inputRef={register}
+                    />
+                    <Button className={classes.button} type="submit"><SendIcon className={classes.sendIcon}/></Button>
+                </form>
             </Box>
 
         </div>
@@ -199,11 +268,3 @@ const Chat = () => {
 }
 
 export default Chat
-
-// email: 'candrepa1@test.com',
-// username: 'candrepa',
-// password: 'random123'
-
-// email: 'gustavo@test.com', 
-// username: 'gustavo',
-// password: 'random123'

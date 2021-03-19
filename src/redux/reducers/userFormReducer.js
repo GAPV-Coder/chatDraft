@@ -9,6 +9,11 @@ const userFormReducer = (state = INITIAL_STATE, action) => {
                 ...state, 
                 formInfo: action.payload
             }
+        case 'LOG_OUT':
+            return {
+                ...state, 
+                formInfo: action.payload
+            }
         default:
             return state;
     }

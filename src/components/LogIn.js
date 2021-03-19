@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { useForm } from 'react-hook-form';
 import {Link, useHistory} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+
+//actions
 import { userForm } from '../redux/actions/userFormActions'
 import { logInThunk } from '../redux/actions/loginActions'
 
@@ -60,14 +62,13 @@ const useStyles = makeStyles({
 });
 
 const LogIn = () => {
-    const {register, handleSubmit, errors} = useForm();
-    const [logIn, setLogIn] = useState('');
+    const {register, handleSubmit} = useForm();
 
-    const history = useHistory();
-
-    const dispatch = useDispatch();
     const user = useSelector(state => state.userFormReducer.formInfo);
     const access = useSelector(state => state.logInReducer.response);
+
+    const history = useHistory();
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if(user.email) {
@@ -84,9 +85,7 @@ const LogIn = () => {
     }, [access, history])
 
     const onSubmit = (data, event) => {
-        console.log(data);
         dispatch((userForm(data)))
-        setLogIn(data);
         event.target.reset();
     }
 
@@ -110,7 +109,7 @@ const LogIn = () => {
                         />
                         <TextField
                             required
-                            type="text"
+                            type="password"
                             id="filled-required"
                             label="Password"
                             variant="filled"
@@ -136,7 +135,6 @@ const LogIn = () => {
                         <span>Don't have an account?</span>
                         <Link to="/signup" className={classes.notAccountLink}>Create an account</Link>
                     </div>
-                    {access.access === false && (<p>{access.message}</p>)}
                 </div>
         </Box>
     )

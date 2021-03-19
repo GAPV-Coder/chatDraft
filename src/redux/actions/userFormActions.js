@@ -4,3 +4,10 @@ export const userForm = (inputData) => {
         payload: inputData
     }
 }
+
+export const logOutForm = () => {
+    return {
+        type: 'LOG_OUT', 
+        payload: {}
+    }
+}
