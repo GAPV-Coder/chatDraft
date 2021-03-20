@@ -1,34 +1,44 @@
 import axios from "axios";
 
-const LOG_IN = 'LOG_IN';
-const LOG_IN_SUCCESS = 'LOG_IN_SUCCESS';
-const LOG_IN_FAILURE = 'LOG_IN_FAILURE';
-const LOG_OUT = 'LOG_OUT';
+export const actions = {
+    LOG_IN: 'LOG_IN',
+    LOG_IN_SUCCESS : 'LOG_IN_SUCCESS',
+    LOG_IN_FAILURE : 'LOG_IN_FAILURE',
+    LOG_IN_ERROR : 'LOG_IN_ERROR',
+    LOG_OUT : 'LOG_OUT',
+} 
 
 export const logIn = () => {
     return {
-        type: LOG_IN,
+        type: actions.LOG_IN,
         payload: 'logging in...'
     }
 }
 
 export const logInSuccess = (data) => {
     return {
-        type: LOG_IN_SUCCESS, 
+        type: actions.LOG_IN_SUCCESS, 
         payload: data
     }
 }
 
 export const logInError = (error) => {
     return {
-        type: LOG_IN_FAILURE,
+        type: actions.LOG_IN_ERROR,
         payload: error
+    }
+}
+
+export const logInFailure = (data) => {
+    return {
+        type: actions.LOG_IN_FAILURE, 
+        payload: data
     }
 }
 
 export const logOutLoggedIn = () => {
     return {
-        type: LOG_OUT,
+        type: actions.LOG_OUT,
         payload: {}
     }
 }
@@ -42,13 +52,14 @@ export const logInThunk = (userEmail, userPassword) => {
             password: userPassword, 
         })
         .then((response) => {
-            console.log(response);
             if(response.data.access) {
                 dispatch(logInSuccess(response.data));
+            } else {
+                dispatch(logInFailure(response.data));
             }
         })
         .catch(function (error) {
-            console.log(error);
+            dispatch(logInError(error))
         });
     }
 }

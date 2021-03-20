@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import {Link, useHistory} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -62,14 +62,13 @@ const useStyles = makeStyles({
 });
 
 const SignUpLogIn = () => {
-    const {register, handleSubmit} = useForm();
-    const [signUp, setSignUp] = useState('');
+    const {register, handleSubmit, errors} = useForm();
 
     const history = useHistory();
     const dispatch = useDispatch();
 
     const user = useSelector(state => state.userFormReducer.formInfo);
-    const access = useSelector(state => state.logInReducer.response);
+    const access = useSelector(state => state.signUpReducer.response);
 
     useEffect(() => {
         if(user.email) {
@@ -87,8 +86,6 @@ const SignUpLogIn = () => {
 
     const onSubmit = (data, event) => {
         dispatch((userForm(data)));
-        console.log(data);
-        setSignUp(data);
         event.target.reset();
     }
 
@@ -103,7 +100,7 @@ const SignUpLogIn = () => {
                         <TextField
                             required
                             type="email"
-                            id="filled-required"
+                            id="email-required"
                             label="Email"
                             variant="filled"
                             name="email"
@@ -113,7 +110,7 @@ const SignUpLogIn = () => {
                         <TextField
                             required
                             type="text"
-                            id="filled-required"
+                            id="user-required"
                             label="Username"
                             variant="filled"
                             name="username"
@@ -123,17 +120,17 @@ const SignUpLogIn = () => {
                         <TextField
                             required
                             type="password"
-                            id="filled-required"
+                            id="password-required"
                             label="Password"
                             variant="filled"
                             name="password"
-                            inputRef={register}
+                            inputRef={register({minLength: {value: 9, message: 'Your password is too short'}})}
                             className={classes.input}
                         />
                         <TextField
                             required
                             type="text"
-                            id="filled-required"
+                            id="room-required"
                             label="Room"
                             variant="filled"
                             name="room"
@@ -148,6 +145,8 @@ const SignUpLogIn = () => {
                         <span>Already have a profile?</span>
                         <Link to="/join" className={classes.yesAccountLink}>Sign In</Link>
                     </div>
+                    {access.access === false && <p>There has been an error. If you already have an account, please Log In. If not, try again.</p>}
+                    {errors.password && <p>{errors.password.message}</p>}
                 </div>
         </Box>
     )

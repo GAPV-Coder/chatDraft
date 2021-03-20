@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import { useForm } from 'react-hook-form';
 import {Link, useHistory} from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -100,7 +100,7 @@ const LogIn = () => {
                         <TextField
                             required
                             type="email"
-                            id="filled-required"
+                            id="email-required"
                             label="Email"
                             variant="filled"
                             name="email"
@@ -110,7 +110,7 @@ const LogIn = () => {
                         <TextField
                             required
                             type="password"
-                            id="filled-required"
+                            id="password-required"
                             label="Password"
                             variant="filled"
                             name="password"
@@ -120,7 +120,7 @@ const LogIn = () => {
                         <TextField
                             required
                             type="text"
-                            id="filled-required"
+                            id="room-required"
                             label="Room"
                             variant="filled"
                             name="room"
@@ -135,6 +135,8 @@ const LogIn = () => {
                         <span>Don't have an account?</span>
                         <Link to="/signup" className={classes.notAccountLink}>Create an account</Link>
                     </div>
+                    {access.error && <p>There has been an error with the Login!</p>}
+                    {access.access === false && <p>Your credentials are incorrect, please try again.</p>}
                 </div>
         </Box>
     )

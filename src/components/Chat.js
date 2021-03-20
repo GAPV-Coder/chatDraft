@@ -3,9 +3,10 @@ import { useHistory } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {useSelector, useDispatch} from 'react-redux';
 import io from "socket.io-client";
+import errorImg from '../img/error.png';
 
 // actions
-import {roomData, messageSocketOn} from '../redux/actions/socketActions';
+import {roomData, messageSocketOn, error} from '../redux/actions/socketActions';
 import {logOutForm} from '../redux/actions/userFormActions';
 import {logOutLoggedIn} from '../redux/actions/loginActions';
 
@@ -18,6 +19,11 @@ import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import TextField from '@material-ui/core/TextField';
 import SendIcon from '@material-ui/icons/Send';
 import Button from '@material-ui/core/Button';
+import Card from '@material-ui/core/Card';
+import CardActionArea from '@material-ui/core/CardActionArea';
+import CardContent from '@material-ui/core/CardContent';
+import CardMedia from '@material-ui/core/CardMedia';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles({
     root: {
@@ -128,7 +134,7 @@ const useStyles = makeStyles({
     conditionalBox: {
         // end
         display: 'flex', 
-        justifyContent: 'end', 
+        justifyContent: 'flex-end', 
         marginBottom: '20px',
     },
     conditionalBox2: {
@@ -148,7 +154,14 @@ const useStyles = makeStyles({
     }, 
     username: {
         textTransform: 'capitalize', 
-    }
+    }, 
+    rootCard: {
+        maxWidth: 345,
+        margin: '0 auto',
+    },
+    media: {
+        height: 140,
+    },
 });
 
 const Chat = () => {
@@ -160,17 +173,11 @@ const Chat = () => {
     const username = useSelector(state => state.logInReducer.response.user.username);
     const room = useSelector(state => state.userFormReducer.formInfo.room);
     const roomName = useSelector(state => state.socketReducer.room_data.room);
-    const usersArray = useSelector(state => state.socketReducer.room_data);
     const msgsFromSocket = useSelector(state => state.socketReducer.msgSocketOn);
+    const usersArray = useSelector(state => state.socketReducer.room_data);
+    const errorRedux = useSelector(state => state.socketReducer.error);
     const dispatch = useDispatch();
     const history = useHistory();
-
-
-        // socket.on('error', (err) => {
-        //     dispatch(error(err));
-        //     console.log(err)
-        // })
-
 
     useEffect(() => {
         if(token) {
@@ -190,6 +197,10 @@ const Chat = () => {
 
             socket.on('message', (data) => {
                 dispatch(messageSocketOn(data));
+            });
+
+            socket.on("error", (err) => {
+                dispatch(error(err));
             });
         }
         
@@ -238,16 +249,35 @@ const Chat = () => {
                 </div>
             </Box>
             <Box width="78%" height="85.5vh" className={classes.chatContainer}>
-                {msgsFromSocket && msgsFromSocket.map((msg) => 
-                <div className={ msg.user === username? classes.conditionalBox : classes.conditionalBox2}>
-                    {console.log(username, msg.user)}
+            {errorRedux ? <Card className={classes.rootCard}>
+                <CardActionArea>
+                    <CardMedia
+                    className={classes.media}
+                    image={errorImg}
+                    title="error"
+                    />
+                    <CardContent>
+                    <Typography gutterBottom variant="h5" component="h2">
+                        Error!
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" component="p">
+                        There has been an error in the connection. Please refresh the page.
+                    </Typography>
+                    </CardContent>
+                </CardActionArea>
+                </Card>
+                : <>
+                {msgsFromSocket && msgsFromSocket.map((msg, index) => 
+                <div key={index} className={ msg.user === username? classes.conditionalBox : classes.conditionalBox2}>
                     <div className={ msg.user === username ? classes.boxDiv2 : classes.boxDiv}>
                         <p className={classes.msgUsername}>{msg.user}</p>
                         <p className={classes.msgMsg}>{msg.text}</p>
                     </div>
-                </div>)}
+                </div>)}</>
+                }
             </Box>
-            <Box width="80%" height="12vh" className={classes.boxSendContainer}>
+
+            {errorRedux ? null : <Box width="80%" height="12vh" className={classes.boxSendContainer}>
                 <form onSubmit={handleSubmit(onSubmit)} className={classes.sendContainer}>
                     <TextField
                             id="outlined-multiline-flexible"
@@ -261,10 +291,10 @@ const Chat = () => {
                     />
                     <Button className={classes.button} type="submit"><SendIcon className={classes.sendIcon}/></Button>
                 </form>
-            </Box>
-
+            </Box>}
         </div>
     )
 }
 
 export default Chat
+

@@ -1,22 +1,37 @@
 import axios from "axios";
+
+export const actions = {
+    SIGN_UP: 'SIGN_UP', 
+    SIGN_UP_SUCCESSFUL: 'SIGN_UP_SUCCESSFUL',
+    SIGN_UP_ERROR: 'SIGN_UP_ERROR',
+    SIGN_UP_FAILURE: 'SIGN_UP_FAILURE'
+}
+
 export const signUp = () => {
     return {
-        type: 'SIGN_UP',
+        type: actions.SIGN_UP,
         payload: 'signing up...'
     }
 }
 
 export const signUpSuccess = (data) => {
     return {
-        type: 'SIGN_UP_SUCCESSFUL', 
+        type: actions.SIGN_UP_SUCCESSFUL, 
         payload: data
     }
 }
 
 export const signUpError = (error) => {
     return {
-        type: 'SIGN_UP_FAILURE',
+        type: actions.SIGN_UP_ERROR,
         payload: error
+    }
+}
+
+export const signUpFailure = (data) => {
+    return {
+        type: actions.SIGN_UP_FAILURE, 
+        payload: data
     }
 }
 
@@ -30,13 +45,14 @@ export const signUpThunk = (userEmail, userUsername, userPassword) => {
                     password: userPassword
                 })
         .then(function (response) {
-            console.log(response);
             if(response.data.access) {
                 dispatch(signUpSuccess(response.data))
+            } else {
+                dispatch(signUpFailure(response.data))
             }
         })
         .catch(function (error) {
-            console.log(error);
+            dispatch(signUpError(error))
         });
         
     }

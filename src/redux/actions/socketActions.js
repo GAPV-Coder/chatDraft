@@ -1,64 +1,65 @@
-const MESSAGE = 'MESSAGE';
-const ROOM_DATA = 'ROOM_DATA';
-const ERROR = 'ERROR';
-const CONNECT_SUCCESSFUL = 'CONNECT_SUCCESSFUL';
-const CONNECT_FAILURE = 'CONNECT_FAILURE';
-const CONNECT_ERROR = 'CONNECT_ERROR';
-const MSG_SOCKET_ON = 'MSG_SOCKET_ON';
-const LOG_OUT = 'LOG_OUT';
+export const actions = {
+    MESSAGE: 'MESSAGE',
+    ROOM_DATA: 'ROOM_DATA',
+    ERROR: 'ERROR',
+    CONNECT_SUCCESSFUL: 'CONNECT_SUCCESSFUL',
+    CONNECT_FAILURE: 'CONNECT_FAILURE',
+    CONNECT_ERROR: 'CONNECT_ERROR',
+    MSG_SOCKET_ON: 'MSG_SOCKET_ON',
+    LOG_OUT: 'LOG_OUT'};
 
 
 export const connectSocketSuccessful = (data) => {
     return {
-        type: CONNECT_SUCCESSFUL, 
+        type: actions.CONNECT_SUCCESSFUL, 
         payload: data
     }
 }
 
 export const connectSocketFailure = (data) => {
     return {
-        type: CONNECT_FAILURE, 
+        type: actions.CONNECT_FAILURE, 
         payload: data
     }
 }
 
 export const connectSocketError = (err) => {
     return {
-        type: CONNECT_ERROR,
+        type: actions.CONNECT_ERROR,
         payload: err
     }
 }
 
 export const message = (msgInfo) => {
     return {
-        type: MESSAGE,
+        type: actions.MESSAGE,
         payload: msgInfo
     }
 }
 
 export const roomData = (roomInfo) => {
     return {
-        type: ROOM_DATA,
+        type: actions.ROOM_DATA,
         payload: roomInfo
     }
 }
 
 export const error = (err) => {
     return {
-        type: ERROR,
+        type: actions.ERROR,
         payload: err
     }
 }
 
 export const messageSocketOn = (msg) => {
     return {
-        type: MSG_SOCKET_ON, 
+        type: actions.MSG_SOCKET_ON, 
         payload: msg
     }
 }
 
 export const logOutSocket = () => {
     return {
-        type: LOG_OUT
+        type: actions.LOG_OUT
     }
 }

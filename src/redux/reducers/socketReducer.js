@@ -1,15 +1,10 @@
-const MESSAGE = 'MESSAGE';
-const ROOM_DATA = 'ROOM_DATA';
-const ERROR = 'ERROR';
-const CONNECT_SUCCESSFUL = 'CONNECT_SUCCESSFUL';
-const CONNECT_FAILURE = 'CONNECT_FAILURE';
-const CONNECT_ERROR = 'CONNECT_ERROR';
-const MSG_SOCKET_ON = 'MSG_SOCKET_ON';
-const LOG_OUT = 'LOG_OUT';
+import {actions} from '../actions/socketActions';
+
+const {MESSAGE, ROOM_DATA, ERROR, CONNECT_SUCCESSFUL, CONNECT_FAILURE, CONNECT_ERROR, MSG_SOCKET_ON, LOG_OUT} = actions;
 
 const INITIAL_STATE = {
     room_data: [], 
-    error: {}, 
+    error: '', 
     msgSocketOn: []
 }
 

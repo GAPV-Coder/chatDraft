@@ -1,7 +1,6 @@
-const LOG_IN = 'LOG_IN';
-const LOG_IN_SUCCESS = 'LOG_IN_SUCCESS';
-const LOG_IN_FAILURE = 'LOG_IN_FAILURE';
-const LOG_OUT = 'LOG_OUT';
+import {actions} from '../actions/loginActions';
+
+const {LOG_IN, LOG_IN_SUCCESS, LOG_IN_FAILURE, LOG_IN_ERROR, LOG_OUT} = actions;
 
 const INITIAL_STATE = {
     response: {}
@@ -19,10 +18,15 @@ const logInReducer = (state = INITIAL_STATE, action) => {
                 ...state, 
                 response: action.payload
             }
-        case LOG_IN_FAILURE: 
+        case LOG_IN_ERROR: 
             return {
                 ...state, 
                 response: { error: action.payload }
+            }
+        case LOG_IN_FAILURE:
+            return {
+                ...state, 
+                response: action.payload
             }
         case LOG_OUT:
             return {
